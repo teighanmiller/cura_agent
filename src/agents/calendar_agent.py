@@ -8,7 +8,7 @@ If you feel that you need clarification on a point in the message ask your boss 
 You can take one of 3 actions:
 - Book the meeting
 - Ask a clarifying question
-- Access the calendar
+- Look at current events in the calendar
 
 You must always respond with a single JSON object in one of these formats:
 
@@ -39,4 +39,4 @@ class CalenderAgent(Agent):
         super().__init__(pipe)
 
     def make_message(self, query: str) -> list[dict]:
-        return [{"role": "user", "content": query}]
+        return [{"role": "user", "content": CALENDER_PROMPT + "\n" + query}]

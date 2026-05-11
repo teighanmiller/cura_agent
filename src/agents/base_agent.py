@@ -24,4 +24,4 @@ class BaseAgent(Agent):
         super().__init__(pipe)
 
     def make_message(self, query: str) -> list[dict]:
-        return [{"role": "user", "content": query}]
+        return [{"role": "user", "content": BASE_PROMPT + "\n" + query}]
