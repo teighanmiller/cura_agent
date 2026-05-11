@@ -14,7 +14,7 @@ class ClassificationAgent(Agent):
     - chat_agent: This agent is in charge of handling any general queries the user has that don't involve the other agents.
     - calendar_agent: This agent is in charge of handling the users calendar.
 
-    You're response should be a single word that corresponds to one of these sub-agents.
+    Your response should be a JSON object in the format: {"type": "classification", "class": "<classification>"} where <classification> is one of "calendar_agent" or "chat_agent".
 
     User Query:
     """
