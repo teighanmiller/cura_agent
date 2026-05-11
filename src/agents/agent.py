@@ -19,9 +19,9 @@ class Agent(ABC):
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:
-        message = self.make_message(message)
+        messages = self.make_message(message)
         try:
-            resp = self.query(message)
+            resp = self.query(messages)
             print(f"Response: {resp}")
             json_resp = json.loads(resp)
             return self.handle_response(json_resp)
@@ -61,13 +61,14 @@ class Agent(ABC):
 
     def handle_response(self, response: dict):
         response_type = response.get("type", {})
+        print(f"response_type: {response_type}")
 
         if response_type == {}:
             raise ValueError
         elif response_type == "response":
-            text_response = response.get("response", {})
+            text_response = response.get("content", {})
             return text_response if text_response != {} else "Error generating response"
-        elif response == "tool_call":
+        elif response_type == "tool_call":
             tool_response = response.get("tool", {})
             arg_response = response.get("args", {})
 
@@ -75,12 +76,21 @@ class Agent(ABC):
                 tool_results = self.handle_tool_call(
                     tool=tool_response, tool_dict=arg_response
                 )
-
-                return self.query(tool_results)
+                print(f"Tool Response: {tool_results}")
+                if not tool_results.strip():
+                    tool_results = "There are no events on the calendar."
+                return self.query([{"role": "user", "content": tool_results}])
             else:
-                raise ValueError
+                raise ValueError("No valid tool call present.")
+        elif response_type == "classification":
+            class_result = response.get("class", {})
+
+            if class_result != {}:
+                return class_result
+            else:
+                raise ValueError("no class present")
         else:
-            raise ValueError
+            raise ValueError("No recognized type of response")
 
     def handle(self, message) -> str:
         response = self.get_response(message)
