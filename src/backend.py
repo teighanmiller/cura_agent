@@ -4,7 +4,7 @@ from agents.base_agent import BaseAgent
 from agents.classification_agent import ClassificationAgent
 from agents.calendar_agent import CalenderAgent
 
-pipe = pipeline("text-generation", model="Qwen/Qwen2.5-1.5B-Instruct")
+pipe = pipeline("text-generation", model="Qwen/Qwen2.5-3B-Instruct")
 
 AGENTS = {
     "classification": ClassificationAgent(pipe),
@@ -16,4 +16,5 @@ AGENTS = {
 def process_message(message: str) -> str:
     query_class = AGENTS["classification"].handle(message)
     agent = AGENTS[query_class]
+    print(f"Agent {agent}")
     return agent.handle(message)
