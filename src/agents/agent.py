@@ -3,6 +3,7 @@ from transformers import Pipeline
 import json
 import subprocess
 from utility import retry
+from timing import timed
 
 
 class Agent(ABC):
@@ -19,12 +20,16 @@ class Agent(ABC):
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:
-        messages = self.make_message(message)
+        agent_name = type(self).__name__
+        with timed(f"{agent_name}.make_message"):
+            messages = self.make_message(message)
         try:
-            resp = self.query(messages)
+            with timed(f"{agent_name}.query"):
+                resp = self.query(messages)
             print(f"Response: {resp}")
             json_resp = json.loads(resp)
-            return self.handle_response(json_resp)
+            with timed(f"{agent_name}.handle_response"):
+                return self.handle_response(json_resp)
         except Exception as e:
             raise e
 
@@ -55,7 +60,8 @@ class Agent(ABC):
     def handle_tool_call(self, tool: str, tool_dict: dict):
         cmd = self.create_tool_call(tool, tool_dict)
 
-        cli_result = subprocess.run(cmd, capture_output=True, text=True)
+        with timed(f"tool_call.{tool}"):
+            cli_result = subprocess.run(cmd, capture_output=True, text=True)
 
         return cli_result.stdout
 

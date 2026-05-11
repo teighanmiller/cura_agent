@@ -1,10 +1,4 @@
-from datetime import datetime
-from pathlib import Path
-
 from agents.agent import Agent
-
-LOG_FILE = Path(__file__).parent.parent.parent / "logs" / "queries.log"
-LOG_FILE.parent.mkdir(exist_ok=True)
 
 
 class ClassificationAgent(Agent):
@@ -26,9 +20,4 @@ class ClassificationAgent(Agent):
         return [{"role": "user", "content": self.CLASSIFICATION_PROMPT + "\n" + query}]
 
     def handle(self, message: str) -> str:
-        result = super().handle(message)
-        with LOG_FILE.open("a") as f:
-            f.write(
-                f"{datetime.now().isoformat()} query={message!r} classification={result!r}\n"
-            )
-        return result
+        return super().handle(message)
