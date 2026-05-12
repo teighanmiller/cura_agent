@@ -65,7 +65,7 @@ End-to-end latency is currently unacceptably high for interactive use. A represe
 
 The Google Calendar API call itself takes ~72 ms — nearly all latency comes from local model inference. Running two full inference passes (classification + response synthesis) on CPU produces multi-second delays at each step, and the response-synthesis step alone currently accounts for ~25 seconds.
 
-**Fix in progress:** Migrating the inference backend from the default `transformers` pipeline to a quantized GGUF model served via `llama-cpp-python`, which reduces per-token latency by 4–8× on Apple Silicon and modern CPUs without requiring a GPU. Classification will also be replaced with a lightweight fine-tuned model or a rules/embedding-based router to eliminate a full LLM call for a task that doesn't need one.
+**Fix in progress:** Migrating the inference backend from the default `transformers` pipeline to a quantized GGUF model served via `llama-cpp-python`, which reduces per-token latency by 4–8× on Apple Silicon and modern CPUs without requiring a GPU. Classification will also be replaced with a lightweight fine-tuned ML or AI model or a rules/embedding-based router to eliminate a full LLM call for a task that doesn't need one.
 
 ### 2. Response synthesis errors
 
