@@ -39,7 +39,6 @@ class Agent(ABC):
         try:
             with timed(f"{agent_name}.query"):
                 resp = self.query(messages)
-            print(f"Response: {resp}")
             json_resp = json.loads(resp)
             with timed(f"{agent_name}.handle_response"):
                 return self.handle_response(json_resp)
@@ -95,7 +94,6 @@ class Agent(ABC):
 
     def handle_response(self, response: dict):
         response_type = response.get("type", {})
-        print(f"response_type: {response_type}")
 
         if response_type == {}:
             raise ValueError
@@ -110,7 +108,6 @@ class Agent(ABC):
                 tool_results = self.handle_tool_call(
                     tool=tool_response, tool_dict=arg_response
                 )
-                print(f"Tool Response: {tool_results}")
                 if not tool_results.strip():
                     tool_results = self._empty_result_message(
                         tool_response, arg_response
