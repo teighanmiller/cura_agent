@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -32,12 +33,13 @@ def process_message(message: str) -> str:
     with timed(f"{query_class}.handle"):
         result = agent.handle(message)
 
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "query": message,
+        "classification": query_class,
+        **trace.to_dict(),
+    }
     with LOG_FILE.open("a") as f:
-        f.write(
-            f"{datetime.now().isoformat()} query={message!r} classification={query_class!r} {trace.to_log_str()}\n"
-        )
-        conv = trace.conversation_log()
-        if conv:
-            f.write(conv + "\n")
+        f.write(json.dumps(entry) + "\n")
 
     return result

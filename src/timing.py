@@ -31,6 +31,16 @@ class RequestTrace:
     def total_ms(self) -> float:
         return sum(s.duration_ms for s in self.steps)
 
+    def to_dict(self) -> dict:
+        return {
+            "timing": {s.name: s.duration_ms for s in self.steps},
+            "total_ms": self.total_ms(),
+            "conversation": [
+                {"messages": turn.messages, "response": turn.response}
+                for turn in self.conversation
+            ],
+        }
+
     def to_log_str(self) -> str:
         parts = [f"{s.name}={s.duration_ms:.1f}" for s in self.steps]
         parts.append(f"total={self.total_ms():.1f}")
