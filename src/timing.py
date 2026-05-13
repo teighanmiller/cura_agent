@@ -12,11 +12,21 @@ class StepTiming:
 
 
 @dataclass
+class ConversationTurn:
+    messages: list[dict]
+    response: str
+
+
+@dataclass
 class RequestTrace:
     steps: list[StepTiming] = field(default_factory=list)
+    conversation: list[ConversationTurn] = field(default_factory=list)
 
     def record(self, name: str, duration_ms: float, error: Optional[str] = None):
         self.steps.append(StepTiming(name, duration_ms, error))
+
+    def record_turn(self, messages: list[dict], response: str):
+        self.conversation.append(ConversationTurn(messages=messages, response=response))
 
     def total_ms(self) -> float:
         return sum(s.duration_ms for s in self.steps)
@@ -26,12 +36,28 @@ class RequestTrace:
         parts.append(f"total={self.total_ms():.1f}")
         return " ".join(parts)
 
+    def conversation_log(self) -> str:
+        if not self.conversation:
+            return ""
+        lines = ["--- conversation ---"]
+        for i, turn in enumerate(self.conversation, 1):
+            lines.append(f"  [turn {i}]")
+            for msg in turn.messages:
+                role = msg.get("role", "unknown")
+                content = msg.get("content", "")
+                lines.append(f"    {role}: {content!r}")
+            lines.append(f"    assistant: {turn.response!r}")
+        return "\n".join(lines)
+
     def summary(self) -> str:
         lines = ["--- timing ---"]
         for s in self.steps:
             status = f" [ERROR: {s.error}]" if s.error else ""
             lines.append(f"  {s.name:<30} {s.duration_ms:>8.1f} ms{status}")
         lines.append(f"  {'TOTAL':<30} {self.total_ms():>8.1f} ms")
+        conv = self.conversation_log()
+        if conv:
+            lines.append(conv)
         return "\n".join(lines)
 
 

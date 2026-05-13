@@ -3,7 +3,7 @@ from pipelines import PipelineProtocal
 import json
 import subprocess
 from utility import retry
-from timing import timed
+from timing import timed, current_trace
 
 
 class Agent(ABC):
@@ -25,7 +25,11 @@ class Agent(ABC):
         return f"Conversation history: \n{facts}\n"
 
     def query(self, message) -> str:
-        return self.pipe(message)
+        response = self.pipe(message)
+        trace = current_trace()
+        if trace is not None:
+            trace.record_turn(messages=message, response=response)
+        return response
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:
@@ -74,6 +78,21 @@ class Agent(ABC):
 
         return cli_result.stdout
 
+    def _empty_result_message(self, tool: str, tool_dict: dict) -> str:
+        if tool == "gcal":
+            command = tool_dict.get("command", "")
+            if command == "event-list":
+                return "There are no events on the calendar."
+            elif command == "event-add":
+                return "Event successfully created."
+            elif command == "event-delete":
+                return "Event successfully deleted."
+            else:
+                return "Calendar operation completed successfully."
+        elif tool == "web":
+            return "No results found for that query."
+        return "The operation completed with no output."
+
     def handle_response(self, response: dict):
         response_type = response.get("type", {})
         print(f"response_type: {response_type}")
@@ -93,7 +112,9 @@ class Agent(ABC):
                 )
                 print(f"Tool Response: {tool_results}")
                 if not tool_results.strip():
-                    tool_results = "There are no events on the calendar."
+                    tool_results = self._empty_result_message(
+                        tool_response, arg_response
+                    )
                 return self.query([{"role": "user", "content": tool_results}])
             else:
                 raise ValueError("No valid tool call present.")

@@ -38,5 +38,8 @@ def process_message(message: str) -> str:
         f.write(
             f"{datetime.now().isoformat()} query={message!r} classification={query_class!r} {trace.to_log_str()}\n"
         )
+        conv = trace.conversation_log()
+        if conv:
+            f.write(conv + "\n")
 
     return result
