@@ -9,10 +9,20 @@ from timing import timed
 class Agent(ABC):
     def __init__(self, pipe: Pipeline) -> None:
         self.pipe = pipe
+        self.memories: list[str] = []
 
     @abstractmethod
     def make_message(self, query: str) -> list[dict]:
         pass
+
+    def add_memory(self, fact: str) -> None:
+        self.memories.append(fact)
+
+    def _memory_block(self) -> str:
+        if not self.memories:
+            return ""
+        facts = "/n".join(f"- {mem}" for mem in self.memories)
+        return f"Conversation history: \n{facts}\n"
 
     def query(self, message) -> str:
         result = self.pipe(message)

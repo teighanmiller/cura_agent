@@ -17,7 +17,16 @@ class ClassificationAgent(Agent):
         super().__init__(pipe)
 
     def make_message(self, query: str) -> list[dict]:
-        return [{"role": "user", "content": self.CLASSIFICATION_PROMPT + "\n" + query}]
+        return [
+            {
+                "role": "user",
+                "content": self.CLASSIFICATION_PROMPT
+                + "\n"
+                + query
+                + "\n"
+                + self._memory_block(),
+            }
+        ]
 
     def handle(self, message: str) -> str:
         return super().handle(message)
