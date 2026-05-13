@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from typing import Protocol, Any, cast
 from openai import OpenAI
 from transformers import pipeline
@@ -10,7 +12,8 @@ class PipelineProtocal(Protocol):
 
 class OpenAIPipeline:
     def __init__(self, model="gpt-4.1-nano") -> None:
-        self.client = OpenAI()
+        load_dotenv()
+        self.client = OpenAI(api_key=os.getenv("GPT_API_KEY"))
         self.model = model
 
     def __call__(self, messages: list[ChatCompletionMessageParam]) -> str:
