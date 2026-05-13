@@ -1,13 +1,15 @@
 from datetime import datetime
 from pathlib import Path
-from transformers import pipeline
+
 
 from agents.base_agent import BaseAgent
 from agents.classification_agent import ClassificationAgent
 from agents.calendar_agent import CalenderAgent
 from timing import start_trace, timed
+from pipelines import OpenAIPipeline
 
-pipe = pipeline("text-generation", model="Qwen/Qwen2.5-3B-Instruct")
+# pipe = pipeline("text-generation", model="Qwen/Qwen2.5-3B-Instruct")
+pipe = OpenAIPipeline()
 
 AGENTS = {
     "classification": ClassificationAgent(pipe),

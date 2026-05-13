@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from transformers import Pipeline
+from pipelines import PipelineProtocal
 import json
 import subprocess
 from utility import retry
@@ -7,7 +7,7 @@ from timing import timed
 
 
 class Agent(ABC):
-    def __init__(self, pipe: Pipeline) -> None:
+    def __init__(self, pipe: PipelineProtocal) -> None:
         self.pipe = pipe
         self.memories: list[str] = []
 
@@ -25,8 +25,7 @@ class Agent(ABC):
         return f"Conversation history: \n{facts}\n"
 
     def query(self, message) -> str:
-        result = self.pipe(message)
-        return result[0]["generated_text"][-1]["content"]
+        return self.pipe(message)
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:

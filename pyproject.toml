@@ -5,6 +5,7 @@ description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
     "gradio>=4.0.0",
+    "openai>=2.36.0",
     "torch>=2.11.0",
     "transformers>=5.5.4",
 ]
