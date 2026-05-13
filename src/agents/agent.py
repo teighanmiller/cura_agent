@@ -65,6 +65,8 @@ class Agent(ABC):
                 cmd += ["--start-time", tool_dict["start_time"]]
             if "end_time" in tool_dict:
                 cmd += ["--end-time", tool_dict["end_time"]]
+            if "freq" in tool_dict:
+                cmd += ["--freq", tool_dict["freq"]]
             return cmd
         else:
             raise ValueError
@@ -82,10 +84,8 @@ class Agent(ABC):
             command = tool_dict.get("command", "")
             if command == "event-list":
                 return "There are no events on the calendar."
-            elif command == "event-add":
+            elif command == "new-event":
                 return "Event successfully created."
-            elif command == "event-delete":
-                return "Event successfully deleted."
             else:
                 return "Calendar operation completed successfully."
         elif tool == "web":

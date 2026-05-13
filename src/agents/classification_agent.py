@@ -5,8 +5,11 @@ class ClassificationAgent(Agent):
     CLASSIFICATION_PROMPT = """
     Your task is to direct this query to the correct sub-agent.
     The sub-agents are as follows:
-    - chat_agent: This agent is in charge of handling any general queries the user has that don't involve the other agents.
-    - calendar_agent: This agent is in charge of handling the users calendar.
+    - chat_agent: Handles general questions and requests, including web searches for current information.
+    - calendar_agent: Handles all Google Calendar operations — listing events, looking up events, and creating events.
+
+    Route to calendar_agent for anything involving scheduling, meetings, events, or the user's calendar.
+    Route to chat_agent for everything else.
 
     Your response should be a JSON object in the format: {"type": "classification", "class": "<classification>"} where <classification> is one of "calendar_agent" or "chat_agent".
 
