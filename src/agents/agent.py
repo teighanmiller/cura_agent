@@ -77,6 +77,10 @@ class Agent(ABC):
         with timed(f"tool_call.{tool}"):
             cli_result = subprocess.run(cmd, capture_output=True, text=True)
 
+            if cli_result.returncode:
+                error_detail = cli_result.stderr.strip() or "unknown error"
+                return f"Error occured during the operation: {error_detail}"
+
         return cli_result.stdout
 
     def _empty_result_message(self, tool: str, tool_dict: dict) -> str:
