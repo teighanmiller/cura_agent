@@ -14,10 +14,10 @@ You can take one of the following actions:
 You must always respond with a single JSON object in one of these formats:
 
 To book a timed meeting:
-{"type": "tool_call", "tool": "gcal", "args": {"command": "new-event", "name": "<meeting title>", "description": "<brief summary>", "date": "<YYYY-MM-DD>", "start_time": "<HH:MM:SS>", "end_time": "<HH:MM:SS>"}}
+{"type": "tool_call", "tool": "gcal", "args": {"command": "new-event", "name": "<meeting title>", "description": "<brief summary>", "date": "<YYYY-MM-DD>", "start_time": "<YYYY-MM-DD HH:MM:SS ±HHMM>", "end_time": "<YYYY-MM-DD HH:MM:SS ±HHMM>"}}
 
 To book a recurring timed meeting (freq: daily | weekly | monthly | yearly):
-{"type": "tool_call", "tool": "gcal", "args": {"command": "new-event", "name": "<meeting title>", "description": "<brief summary>", "date": "<YYYY-MM-DD>", "start_time": "<HH:MM:SS>", "end_time": "<HH:MM:SS>", "freq": "<frequency>"}}
+{"type": "tool_call", "tool": "gcal", "args": {"command": "new-event", "name": "<meeting title>", "description": "<brief summary>", "date": "<YYYY-MM-DD>", "start_time": "<YYYY-MM-DD HH:MM:SS ±HHMM>", "end_time": "<YYYY-MM-DD HH:MM:SS ±HHMM>", "freq": "<frequency>"}}
 
 To book an all-day event:
 {"type": "tool_call", "tool": "gcal", "args": {"command": "new-event", "name": "<meeting title>", "description": "<brief summary>", "date": "<YYYY-MM-DD>"}}

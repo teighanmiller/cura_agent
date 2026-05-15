@@ -57,16 +57,16 @@ Create a calendar event. Supports all-day (date only) or timed events, with opti
 cura gcal new-event --name "Conference" --description "Annual conf" --date 2026-05-01
 
 # Timed event
-cura gcal new-event --name "Standup" --description "Daily sync" --date 2026-04-24 --start-time "09:00:00" --end-time "09:30:00"
+cura gcal new-event --name "Standup" --description "Daily sync" --date 2026-04-24 --start-time "2026-04-24 09:00:00 +0000" --end-time "2026-04-24 09:30:00 +0000"
 
 # Recurring timed event
-cura gcal new-event --name "Weekly review" --description "Weekly" --date 2026-04-24 --start-time "10:00:00" --end-time "10:30:00" --freq weekly
+cura gcal new-event --name "Weekly review" --description "Weekly" --date 2026-04-24 --start-time "2026-04-24 10:00:00 +0000" --end-time "2026-04-24 10:30:00 +0000" --freq weekly
 ```
 
 - `name`: required
 - `description`: optional
 - `date`: `YYYY-MM-DD` (required for all-day; also used as base date for timed events)
-- `start-time` / `end-time` (event creation): `HH:MM:SS` — if both provided, creates a timed event; otherwise all-day
+- `start-time` / `end-time` (event creation): `YYYY-MM-DD HH:MM:SS ±HHMM` — if both provided, creates a timed event; otherwise all-day
 - `freq`: optional recurrence — values: `daily`, `weekly`, `monthly`, `yearly` — maps to `RRULE:FREQ=...`
 - All events are inserted into the `"primary"` calendar.
 
@@ -75,7 +75,7 @@ cura gcal new-event --name "Weekly review" --description "Weekly" --date 2026-04
 | Flag | Context | Format |
 |---|---|---|
 | `--date` | new-event | `YYYY-MM-DD` |
-| `--start-time` / `--end-time` | new-event (timed) | `HH:MM:SS` |
+| `--start-time` / `--end-time` | new-event (timed) | `YYYY-MM-DD HH:MM:SS ±HHMM` |
 | `--start-time` / `--end-time` | event-list / event-details | `YYYY-MM-DD HH:MM:SS ±HHMM` |
 
 ---
