@@ -14,7 +14,9 @@ class BaseAgentResponse(BaseModel):
 class CalendarAgentResponse(BaseModel):
     type: Literal["response", "tool_call"]
     content: Optional[str] = None
-    command: Optional[Literal["new-event", "event-list", "event-details"]] = None
+    command: Optional[
+        Literal["new-event", "event-list", "event-details", "delete-event"]
+    ] = None
     name: Optional[str] = None
     description: Optional[str] = None
     date: Optional[str] = None

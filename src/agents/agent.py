@@ -39,17 +39,14 @@ class Agent(ABC):
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:
-        print("Getting response....")
         agent_name = type(self).__name__
         with timed(f"{agent_name}.make_message"):
             messages = self.make_message(message)
         try:
             with timed(f"{agent_name}.query"):
                 parsed = self.query(self.response_model, messages)
-            print("Query made...")
             with timed(f"{agent_name}.handle_response"):
                 return self.handle_response(parsed)
-            print("Handling response....")
         except Exception as e:
             raise e
 
@@ -109,6 +106,8 @@ class Agent(ABC):
                 return "There are no events on the calendar."
             elif command == "new-event":
                 return "Event successfully created."
+            elif command == "delete-event":
+                return "Event successfully deleted."
             else:
                 return "Calendar operation completed successfully."
         elif tool == "web":

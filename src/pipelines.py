@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from typing import Protocol, Any, cast
+from typing import Protocol
 from openai import OpenAI
 from transformers import pipeline
 from openai.types.chat import ChatCompletionMessageParam
@@ -34,6 +34,7 @@ class HFPipeline:
     def __init__(self, model) -> None:
         self.pipe = pipeline("text-generation", model=model)
 
-    def __call__(self, _response_fromat: type[BaseModel], messages: list) -> str:
-        result = cast(Any, self.pipe(messages))
-        return result[0]["generated_text"][-1]["content"]
+    def __call__(self, response_format: type[BaseModel], messages: list) -> BaseModel:
+        raise NotImplementedError(
+            "HFPipeline does not support structured output (response_format) yet"
+        )

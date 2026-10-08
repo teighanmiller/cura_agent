@@ -17,6 +17,7 @@ You can take one of the following actions:
 - Book a meeting (timed or all-day, optionally recurring)
 - Look up a specific event by name
 - List events on the calendar
+- Delete an event by name
 - Ask a clarifying question
 
 You must always respond with a single JSON object in one of these formats:
@@ -42,6 +43,12 @@ To look up an event by name:
 To look up an event by name within a time range:
 {"type": "tool_call", "command": "event-details", "name": "<event name>", "start_time": "<YYYY-MM-DD HH:MM:SS +0000>", "end_time": "<YYYY-MM-DD HH:MM:SS +0000>"}
 
+To delete an event by name:
+{"type": "tool_call", "command": "delete-event", "name": "<event name>"}
+
+To delete an event by name within a time range (use when multiple events share a name):
+{"type": "tool_call", "command": "delete-event", "name": "<event name>", "start_time": "<YYYY-MM-DD HH:MM:SS +0000>", "end_time": "<YYYY-MM-DD HH:MM:SS +0000>"}
+
 To ask a clarifying question:
 {"type": "response", "content": "<your clarifying question here>"}
 
@@ -66,7 +73,6 @@ class CalenderAgent(Agent):
 
     def make_message(self, query: str) -> list[dict]:
         datetime_str = self.handle_tool_call(DATETIME_CMD[0], DATETIME_CMD[1])
-        print("Making calender message....")
         return [
             {
                 "role": "user",

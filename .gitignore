@@ -209,3 +209,6 @@ __marimo__/
 # api_secrets
 client_secret.json
 token_cache.json
+
+# macOS
+.DS_Store
