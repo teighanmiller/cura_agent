@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 from pipelines import PipelineProtocal
-import json
 import subprocess
+from typing import ClassVar
+from pydantic import BaseModel
+from models import CalendarAgentResponse, ClassificationResponse
 from utility import retry
 from timing import timed, current_trace
 
 
 class Agent(ABC):
+    response_model: ClassVar[type[BaseModel]]
+
     def __init__(self, pipe: PipelineProtocal) -> None:
         self.pipe = pipe
         self.memories: list[str] = []
@@ -24,29 +28,35 @@ class Agent(ABC):
         facts = "/n".join(f"- {mem}" for mem in self.memories)
         return f"Conversation history: \n{facts}\n"
 
-    def query(self, message) -> str:
-        response = self.pipe(message)
+    def query(self, response_format: type[BaseModel], messages: list) -> BaseModel:
+        response = self.pipe(response_format=response_format, messages=messages)
         trace = current_trace()
         if trace is not None:
-            trace.record_turn(messages=message, response=response)
+            trace.record_turn(
+                messages=messages, response=response.model_json_schema.__str__()
+            )
         return response
 
     @retry(max_attempts=3, delay=1)
     def get_response(self, message) -> str:
+        print("Getting response....")
         agent_name = type(self).__name__
         with timed(f"{agent_name}.make_message"):
             messages = self.make_message(message)
         try:
             with timed(f"{agent_name}.query"):
-                resp = self.query(messages)
-            json_resp = json.loads(resp)
+                parsed = self.query(self.response_model, messages)
+            print("Query made...")
             with timed(f"{agent_name}.handle_response"):
-                return self.handle_response(json_resp)
+                return self.handle_response(parsed)
+            print("Handling response....")
         except Exception as e:
             raise e
 
     def create_tool_call(self, tool, tool_dict) -> list[str]:
-        if tool == "web":
+        if tool == "time":
+            return ["cura", "time", tool_dict["command"]]
+        elif tool == "web":
             cmd = ["cura", "web", tool_dict["query"]]
             if "engine" in tool_dict:
                 cmd += ["--engine", tool_dict["engine"]]
@@ -75,7 +85,16 @@ class Agent(ABC):
         cmd = self.create_tool_call(tool, tool_dict)
 
         with timed(f"tool_call.{tool}"):
-            cli_result = subprocess.run(cmd, capture_output=True, text=True)
+            try:
+                cli_result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=20
+                )
+            except subprocess.TimeoutExpired:
+                return (
+                    "This action has failed. The use must login and authenticate Google Calender."
+                    "Please inform the user to run `cura gcal event-list` in their terminal "
+                    "to complete Google authentication, then try again."
+                )
 
             if cli_result.returncode:
                 error_detail = cli_result.stderr.strip() or "unknown error"
@@ -96,38 +115,24 @@ class Agent(ABC):
             return "No results found for that query."
         return "The operation completed with no output."
 
-    def handle_response(self, response: dict):
-        response_type = response.get("type", {})
+    def handle_response(self, response: BaseModel) -> str:
+        if isinstance(response, ClassificationResponse):
+            return response.class_name
 
-        if response_type == {}:
-            raise ValueError
-        elif response_type == "response":
-            text_response = response.get("content", {})
-            return text_response if text_response != {} else "Error generating response"
-        elif response_type == "tool_call":
-            tool_response = response.get("tool", {})
-            arg_response = response.get("args", {})
+        response_type = getattr(response, "type", None)
+        if response_type == "response":
+            return getattr(response, "content", "")
 
-            if tool_response != {} and arg_response != {}:
-                tool_results = self.handle_tool_call(
-                    tool=tool_response, tool_dict=arg_response
-                )
-                if not tool_results.strip():
-                    tool_results = self._empty_result_message(
-                        tool_response, arg_response
-                    )
-                return self.query([{"role": "user", "content": tool_results}])
-            else:
-                raise ValueError("No valid tool call present.")
-        elif response_type == "classification":
-            class_result = response.get("class", {})
+        tool = "gcal" if isinstance(response, CalendarAgentResponse) else "web"
+        args = response.model_dump(exclude_none=True, exclude={"type", "content"})
 
-            if class_result != {}:
-                return class_result
-            else:
-                raise ValueError("no class present")
-        else:
-            raise ValueError("No recognized type of response")
+        tool_results = self.handle_tool_call(tool=tool, tool_dict=args)
+        if not tool_results.strip():
+            tool_results = self._empty_result_message(tool, args)
+        follow_up = self.query(
+            self.response_model, [{"role": "user", "content": tool_results}]
+        )
+        return self.handle_response(follow_up)
 
     def handle(self, message) -> str:
         response = self.get_response(message)

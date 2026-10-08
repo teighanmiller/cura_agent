@@ -17,6 +17,7 @@ Top-level subcommands (defined in `main.rs`):
 |---|---|---|
 | `gcal` | `google_cal.rs` | Google Calendar operations |
 | `web` | `web.rs` | DuckDuckGo web search |
+| `time` | `time.rs` | Local date/time queries |
 
 
 ---
@@ -24,8 +25,6 @@ Top-level subcommands (defined in `main.rs`):
 ## Subcommand reference
 
 ### `cura gcal` — Google Calendar
-
-Three sub-subcommands defined in `GcalCommands` enum (`google_cal.rs`):
 
 #### `event-list`
 List events. Defaults to today if no range given.
@@ -77,6 +76,33 @@ cura gcal new-event --name "Weekly review" --description "Weekly" --date 2026-04
 | `--date` | new-event | `YYYY-MM-DD` |
 | `--start-time` / `--end-time` | new-event (timed) | `YYYY-MM-DD HH:MM:SS ±HHMM` |
 | `--start-time` / `--end-time` | event-list / event-details | `YYYY-MM-DD HH:MM:SS ±HHMM` |
+
+#### `delete-event`
+Delete a calendar event by name. Uses the same event lookup as `event-details` — if multiple events match, the CLI errors asking for narrower parameters.
+
+```bash
+cura gcal delete-event --name "Team standup"
+cura gcal delete-event --name "standup" --start-time "2026-05-15 09:00:00 +0000" --end-time "2026-05-15 10:00:00 +0000"
+```
+
+- `name`: required string; used to find the event to delete.
+- `start_time` / `end_time`: optional, narrow the search window. Same format as `event-list`.
+- Sends deletion notifications to all attendees (`send_updates=all`).
+- Returns `"Successfully deleted event <name>"` on success.
+
+---
+
+### `cura time` — Local date/time
+
+Three sub-subcommands returning the current local system time.
+
+```bash
+cura time time        # current time:          HH:MM:SS
+cura time date        # current date:          YYYY-MM-DD
+cura time date-time   # current date and time: YYYY-MM-DD HH:MM:SS
+```
+
+No flags or arguments.
 
 ---
 

@@ -1,4 +1,5 @@
 from agents.agent import Agent
+from models import BaseAgentResponse
 
 BASE_PROMPT = """
 You are a helpful assistant that answers your bosses questions to the best of your ability.
@@ -13,13 +14,15 @@ If you can answer directly:
 {"type": "response", "content": "<your answer here>"}
 
 If you need to perform a web search:
-{"type": "tool_call", "tool": "web", "args": {"query": "<search query>", "engine": "duck-duck-go", "max_value": <N>}}
+{"type": "tool_call", "query": "<search query>", "engine": "duck-duck-go", "max_value": <N>}
 
 Your boss has asked you the following:
 """
 
 
 class BaseAgent(Agent):
+    response_model = BaseAgentResponse
+
     def __init__(self, pipe) -> None:
         super().__init__(pipe)
 

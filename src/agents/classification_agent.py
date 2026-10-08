@@ -1,4 +1,5 @@
 from agents.agent import Agent
+from models import ClassificationResponse
 
 
 class ClassificationAgent(Agent):
@@ -15,6 +16,8 @@ class ClassificationAgent(Agent):
 
     User Query:
     """
+
+    response_model = ClassificationResponse
 
     def __init__(self, pipe) -> None:
         super().__init__(pipe)
