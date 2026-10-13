@@ -25,7 +25,7 @@ class Agent(ABC):
     def _memory_block(self) -> str:
         if not self.memories:
             return ""
-        facts = "/n".join(f"- {mem}" for mem in self.memories)
+        facts = "\n".join(f"- {mem}" for mem in self.memories)
         return f"Conversation history: \n{facts}\n"
 
     def query(self, response_format: type[BaseModel], messages: list) -> BaseModel:
