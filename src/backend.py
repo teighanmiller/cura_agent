@@ -6,6 +6,7 @@ from pathlib import Path
 from agents.base_agent import BaseAgent
 from agents.classification_agent import ClassificationAgent
 from agents.calendar_agent import CalenderAgent
+from agents.email_agent import EmailAgent
 from timing import start_trace, timed
 from pipelines import OpenAIPipeline
 
@@ -16,6 +17,7 @@ AGENTS = {
     "classification": ClassificationAgent(pipe),
     "chat_agent": BaseAgent(pipe),
     "calendar_agent": CalenderAgent(pipe),
+    "email_agent": EmailAgent(pipe),
 }
 
 LOG_FILE = Path(__file__).parent.parent / "logs" / "queries.log"

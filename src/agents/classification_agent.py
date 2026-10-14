@@ -8,11 +8,13 @@ class ClassificationAgent(Agent):
     The sub-agents are as follows:
     - chat_agent: Handles general questions and requests, including web searches for current information.
     - calendar_agent: Handles all Google Calendar operations — listing events, looking up events, and creating events.
+    - email_agent: Handles all email operations — sending, searching, reading, and deleting emails.
 
     Route to calendar_agent for anything involving scheduling, meetings, events, or the user's calendar.
+    Route to email_agent for anything involving sending, reading, searching, or deleting email.
     Route to chat_agent for everything else.
 
-    Your response should be a JSON object in the format: {"type": "classification", "class": "<classification>"} where <classification> is one of "calendar_agent" or "chat_agent".
+    Your response should be a JSON object in the format: {"type": "classification", "class": "<classification>"} where <classification> is one of "calendar_agent", "email_agent", or "chat_agent".
 
     User Query:
     """

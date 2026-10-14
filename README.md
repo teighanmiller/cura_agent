@@ -17,7 +17,7 @@ User Query
 ClassificationAgent       ← determines which domain the query belongs to
     │
     ▼
-Domain Agent              ← BaseAgent (chat/web), CalenderAgent (EmailAgent, TaskAgent — planned)
+Domain Agent              ← BaseAgent (chat/web), CalenderAgent, EmailAgent (TaskAgent — planned)
     │
     ▼
 Cura CLI (Rust)           ← handles gcal / web / time calls to external services
@@ -48,7 +48,7 @@ The project is in **Phase 1: Core Agent Loop**. The classification, chat, and ca
 - Per-request timing instrumentation and JSONL query/conversation logging (`logs/queries.log`)
 
 ### What is still open
-- **Conversation memory**: `Agent.memories` / `add_memory` exist but nothing currently populates them — no cross-turn memory is wired into `process_message` yet
+- **Conversation memory** *(on hold)*: `Agent.memories` / `add_memory` exist but nothing currently populates them — no cross-turn memory is wired into `process_message` yet. Deprioritized for now since this is single-user, low-volume usage and the added complexity (session/user scoping, persistence) isn't worth it yet.
 - **Local/offline inference**: `HFPipeline` is a stub that raises `NotImplementedError`; the project currently depends on the OpenAI API rather than running fully locally
 - Additional domain agents (email, tasks)
 - Improved prompt templates / fewer malformed clarifying-question loops
@@ -131,11 +131,11 @@ A core long-term goal of this project is **fine-tuning small LLMs for specific q
 - [x] Calendar event deletion (`delete-event`)
 - [x] Date/time-aware calendar prompts (`cura time` grounding)
 - [x] Minimal Gradio chat UI
-- [ ] Wire up conversation memory across turns (scaffolding exists, unused)
+- [ ] ~~Wire up conversation memory across turns~~ — on hold; scaffolding exists (`Agent.memories`/`add_memory`) but little value while this is single-user, low-volume usage
 - [ ] Restore a working local/offline inference path (`HFPipeline` currently stubbed)
 - [ ] Replace LLM-based classifier with embedding/rules router
 - [ ] Automated test coverage
-- [ ] Email domain agent
+- [ ] Email domain agent — Python side scaffolded (`EmailAgent`, `EmailAgentResponse`, classification routing, `create_tool_call`/`handle_response` dispatch); blocked on `cura` adding an `email` subcommand, so it can't run end-to-end yet
 - [ ] Task management domain agent
 - [ ] Evaluate skill-file architecture as an alternative to per-domain agents
 - [ ] Collect domain-specific training data for fine-tuning experiments

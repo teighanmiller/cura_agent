@@ -25,6 +25,21 @@ class CalendarAgentResponse(BaseModel):
     freq: Optional[Literal["daily", "weekly", "monthly", "yearly"]] = None
 
 
+class EmailAgentResponse(BaseModel):
+    type: Literal["response", "tool_call"]
+    content: Optional[str] = None
+    command: Optional[
+        Literal["new-email", "email-list", "email-details", "delete-email"]
+    ] = None
+    to: Optional[str] = None
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    query: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    max_value: Optional[int] = None
+
+
 class ClassificationResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     type: Literal["classification"]

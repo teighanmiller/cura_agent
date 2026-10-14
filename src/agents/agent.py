@@ -3,7 +3,7 @@ from pipelines import PipelineProtocal
 import subprocess
 from typing import ClassVar
 from pydantic import BaseModel
-from models import CalendarAgentResponse, ClassificationResponse
+from models import CalendarAgentResponse, ClassificationResponse, EmailAgentResponse
 from utility import retry
 from timing import timed, current_trace
 
@@ -75,6 +75,23 @@ class Agent(ABC):
             if "freq" in tool_dict:
                 cmd += ["--freq", tool_dict["freq"]]
             return cmd
+        elif tool == "email":
+            cmd = ["cura", "email", tool_dict["command"]]
+            if "to" in tool_dict:
+                cmd += ["--to", tool_dict["to"]]
+            if "subject" in tool_dict:
+                cmd += ["--subject", tool_dict["subject"]]
+            if "body" in tool_dict:
+                cmd += ["--body", tool_dict["body"]]
+            if "query" in tool_dict:
+                cmd += ["--query", tool_dict["query"]]
+            if "start_time" in tool_dict:
+                cmd += ["--start-time", tool_dict["start_time"]]
+            if "end_time" in tool_dict:
+                cmd += ["--end-time", tool_dict["end_time"]]
+            if "max_value" in tool_dict:
+                cmd += ["--max-value", str(tool_dict["max_value"])]
+            return cmd
         else:
             raise ValueError
 
@@ -112,6 +129,16 @@ class Agent(ABC):
                 return "Calendar operation completed successfully."
         elif tool == "web":
             return "No results found for that query."
+        elif tool == "email":
+            command = tool_dict.get("command", "")
+            if command == "email-list":
+                return "There are no emails matching that search."
+            elif command == "new-email":
+                return "Email successfully sent."
+            elif command == "delete-email":
+                return "Email successfully deleted."
+            else:
+                return "Email operation completed successfully."
         return "The operation completed with no output."
 
     def handle_response(self, response: BaseModel) -> str:
@@ -122,7 +149,12 @@ class Agent(ABC):
         if response_type == "response":
             return getattr(response, "content", "")
 
-        tool = "gcal" if isinstance(response, CalendarAgentResponse) else "web"
+        if isinstance(response, CalendarAgentResponse):
+            tool = "gcal"
+        elif isinstance(response, EmailAgentResponse):
+            tool = "email"
+        else:
+            tool = "web"
         args = response.model_dump(exclude_none=True, exclude={"type", "content"})
 
         tool_results = self.handle_tool_call(tool=tool, tool_dict=args)
